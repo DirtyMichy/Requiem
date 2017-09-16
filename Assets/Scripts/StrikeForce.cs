@@ -178,6 +178,7 @@ public class StrikeForce : MonoBehaviour
 
     public IEnumerator DeployAIStrikeForce(int destination)
     {
+        Debug.Log("Deploying AI");
         isMoving = true;
 
         Vector3 originalPosition = transform.position;
@@ -215,7 +216,6 @@ public class StrikeForce : MonoBehaviour
     {
         if (!isMoving && gameObject.tag == "StrikeForce")
         {
-
             //only select the current strikeForce if its different to the last one, so the last and current one cant be the same
             if (gameObject != Manager.current.GetCurrentStrikeForce())
                 Manager.current.SetCurrentStrikeForce(transform.root.gameObject);
@@ -443,15 +443,16 @@ public class StrikeForce : MonoBehaviour
                 }
                 attacker.GetComponent<StrikeForce>().units.Clear();
 
-                yield return new WaitForSeconds(1f);
-
                 if (attacker.GetComponent<StrikeForce>().faction == 1)
                     sounds[3].Play();
                 Debug.Log(defender + " has lost");
                 defender.GetComponent<StrikeForce>().faction = attacker.GetComponent<StrikeForce>().faction;
-                defender.GetComponent<StrikeForce>().GetComponent<SpriteRenderer>().sprite = attacker.GetComponent<SpriteRenderer>().sprite;
 
                 defender.GetComponent<StrikeForce>().currentLocation.GetComponent<Region>().owner = attacker.GetComponent<StrikeForce>().faction;
+
+                yield return new WaitForSeconds(1f);
+
+                defender.GetComponent<StrikeForce>().GetComponent<SpriteRenderer>().sprite = attacker.GetComponent<SpriteRenderer>().sprite;
 
                 defender.GetComponent<StrikeForce>().currentLocation.GetComponent<Region>().Colorize();
                 attacker.GetComponent<StrikeForce>().currentLocation.GetComponent<Region>().Colorize();
