@@ -443,14 +443,16 @@ public class StrikeForce : MonoBehaviour
                 }
                 attacker.GetComponent<StrikeForce>().units.Clear();
 
-                if (attacker.GetComponent<StrikeForce>().faction == 1)
-                    sounds[3].Play();
+
                 Debug.Log(defender + " has lost");
                 defender.GetComponent<StrikeForce>().faction = attacker.GetComponent<StrikeForce>().faction;
 
                 defender.GetComponent<StrikeForce>().currentLocation.GetComponent<Region>().owner = attacker.GetComponent<StrikeForce>().faction;
 
                 yield return new WaitForSeconds(1f);
+
+				if (attacker.GetComponent<StrikeForce>().faction == 1)
+					sounds[3].Play();
 
                 defender.GetComponent<StrikeForce>().GetComponent<SpriteRenderer>().sprite = attacker.GetComponent<SpriteRenderer>().sprite;
 
