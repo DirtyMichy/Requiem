@@ -6,12 +6,10 @@ using UnityEngine.UI;
 
 public class Manager : MonoBehaviour
 {
-    public static Manager current;              //A public static reference to itself (make's it visible to other objects without a reference)
+    public static Manager current;
     public GameObject currentSelectedStrikeForce;
     public GameObject lastSelectedStrikeForce;
-
     public GameObject[] startingStrikeForces;
-
     public GameObject defaultStrikeForce;
 
     public Button[] buttons;
@@ -40,12 +38,11 @@ public class Manager : MonoBehaviour
 
     private bool end = false;
 
-    //public int playerRessources = 0;
-    //public int enemyRessources = 0;
-
     public int[] factionRessources;
 
     public AudioSource[] sounds;
+
+    public Color[] factionColors;
 
     void Update()
     {
@@ -129,8 +126,6 @@ public class Manager : MonoBehaviour
     {
         if (currentSelectedStrikeForce.GetComponent<StrikeForce>().faction != 666)
         {
-            //sectorNameText.GetComponent<Text>().text = "Sector: " + currentSelectedStrikeForce.GetComponent<StrikeForce>().currentLocation;
-            //sectorOwnerText.GetComponent<Text>().text = "Fraktion: " + currentSelectedStrikeForce.GetComponent<StrikeForce>().faction;
             sectorOwnerText.GetComponent<Text>().text = "Sektorinfo";
             tankCountText.GetComponent<Text>().text = "Panzer    : " + countUnitsInList(tank);
             soldierCountText.GetComponent<Text>().text = "Soldaten  : " + countUnitsInList(soldier);

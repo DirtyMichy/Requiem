@@ -5,23 +5,15 @@ using UnityEngine;
 public class StrikeForce : MonoBehaviour
 {
     public int faction = 0; //0 = None, 1 = Faction 1, ...
-
     public GameObject currentLocation; //current sector of the strikeForce
     public List<GameObject> possibleDestiantions = new List<GameObject>();
-
     public List<GameObject> units = new List<GameObject>();
-
     private GameObject lastStrikeForce;
-
     public GameObject[] unitTypes;
-
     private bool isMoving = false;
-
     public AudioSource[] sounds;
-
     float iTweenScaleFactor = 0.5f;
     float iTweenMoveSpeed = 1f;
-
     public GameObject[,] unitAITypes;
 
     void setCurrentLocation(GameObject location)
@@ -32,9 +24,6 @@ public class StrikeForce : MonoBehaviour
     public void CalculateSize()
     {
         float size = TweenSize();
-        //Debug.Log(size);
-
-        //transform.localScale = new Vector3(size, size, 1f);
 
         iTween.ScaleTo(gameObject, iTween.Hash("x", size, "y", size, "easeType", "linear", "looptype", "none", "time", .5f));
     }
@@ -47,52 +36,22 @@ public class StrikeForce : MonoBehaviour
 
     public void Colorize()
     {
-        if (faction == 0)
-            gameObject.GetComponent<SpriteRenderer>().color = new Color(.0f, .0f, .5f, 1f);
-        if (faction == 1)
-            gameObject.GetComponent<SpriteRenderer>().color = new Color(.5f, 0f, .5f, 1f);
-        if (faction == 2)
-            gameObject.GetComponent<SpriteRenderer>().color = new Color(.5f, 0f, 0f, 1f);
-        if (faction == 3)
-            gameObject.GetComponent<SpriteRenderer>().color = new Color(0f, .5f, .5f, 1f);
-        if (faction == 4)
-            gameObject.GetComponent<SpriteRenderer>().color = new Color(.5f, .5f, 0f, 1f);
+        gameObject.GetComponent<SpriteRenderer>().color = Manager.current.factionColors[faction];
     }
 
     void Awake()
     {
-       //0 = Tank, 1 = Heli, 2 = Soldier
-       unitAITypes =  new GameObject[3,2]
-            {
+        //0 = Tank, 1 = Heli, 2 = Soldier
+        unitAITypes = new GameObject[3, 2]
+             {
             {unitTypes[0], unitTypes[0]},
             {unitTypes[2], unitTypes[2]},
             {unitTypes[1], unitTypes[1]}
-            };
-        //Debug.Log("Length: " + unitAITypes.Length);
+             };
         sounds = GetComponents<AudioSource>();
 
         GameObject temp = (GameObject)Instantiate(unitTypes[Random.Range(0, unitTypes.Length)]);
         units.Add(temp);
-
-        /*
-        if (faction == 1)
-        {
-            temp = (GameObject)Instantiate(unitTypes[Random.Range(0, unitTypes.Length)]);
-            units.Add(temp);
-            temp = (GameObject)Instantiate(unitTypes[Random.Range(0, unitTypes.Length)]);
-            units.Add(temp);
-            temp = (GameObject)Instantiate(unitTypes[Random.Range(0, unitTypes.Length)]);
-            units.Add(temp);
-            temp = (GameObject)Instantiate(unitTypes[Random.Range(0, unitTypes.Length)]);
-            units.Add(temp);
-            temp = (GameObject)Instantiate(unitTypes[Random.Range(0, unitTypes.Length)]);
-            units.Add(temp);
-            temp = (GameObject)Instantiate(unitTypes[Random.Range(0, unitTypes.Length)]);
-            units.Add(temp);
-            temp = (GameObject)Instantiate(unitTypes[Random.Range(0, unitTypes.Length)]);
-            units.Add(temp);
-        }
-        */
         if (faction != 666)
             StartCoroutine("AIControls");
 
@@ -121,7 +80,7 @@ public class StrikeForce : MonoBehaviour
                     Manager.current.factionRessources[faction] -= 10;
 
                     //GameObject temp = (GameObject)Instantiate(unitTypes[Random.Range(0, unitTypes.Length)]);
-                    GameObject temp = (GameObject)Instantiate(unitAITypes[faction-2,Random.Range(0, 2)]);
+                    GameObject temp = (GameObject)Instantiate(unitAITypes[faction - 2, Random.Range(0, 2)]);
 
                     units.Add(temp);
                 }
@@ -160,7 +119,7 @@ public class StrikeForce : MonoBehaviour
 
         if (!isMoving && gameObject.tag == "StrikeForce")
         {
-            int destination = Random.Range(0, possibleDestiantions.Count);
+            int destination = Random.Range(0, possibleDestiantions.Count - 1);
 
             //Faction means its a friendly AI controlled target
             if (units.Count > 0)
@@ -199,11 +158,6 @@ public class StrikeForce : MonoBehaviour
         transform.position = originalPosition;
         transform.localScale = new Vector3(0f, 0f, 0f);
 
-        //float size = TweenSize();
-        //iTween.ScaleTo(gameObject, iTween.Hash("scale", new Vector3(size, size, 1f), "easeType", "linear", "time", iTweenScaleFactor));
-
-        //iTween.ScaleTo(gameObject, iTween.Hash("x", size, "y", size, "easeType", "linear", "looptype", "none", "time", .5f));
-
         isMoving = false;
 
         //yield return new WaitForSeconds(1f);
@@ -235,7 +189,7 @@ public class StrikeForce : MonoBehaviour
                 for (int i = 0; i < lastStrikeForce.GetComponent<StrikeForce>().possibleDestiantions.Count; i++)
                 {
                     if (transform.root.gameObject == lastStrikeForce.GetComponent<StrikeForce>().possibleDestiantions[i].GetComponent<Region>().currentStrikeForce)
-                        isNeighbour = true;// Debug.Log("Valid Target");            
+                        isNeighbour = true;
                 }
 
             if (!isNeighbour)
@@ -269,8 +223,6 @@ public class StrikeForce : MonoBehaviour
             //If the faction isn´t 1, the target is an enemy and will be attacked
             if (faction != 1 && lastStrikeForce.GetComponent<StrikeForce>().faction == 1)
             {
-                //Debug.Log("Faction: " + faction);
-
                 //If last StrikeForce (the attacker) is a neighbour of the target, then attack the target
                 if (isNeighbour && lastStrikeForce.GetComponent<StrikeForce>().units.Count > 0)
                 {
@@ -305,9 +257,6 @@ public class StrikeForce : MonoBehaviour
         lastStrikeForce.transform.position = originalPosition;
         lastStrikeForce.transform.localScale = new Vector3(0f, 0f, 0f);
 
-        //float size = TweenSize();
-        //iTween.ScaleTo(lastStrikeForce, iTween.Hash("scale", new Vector3(size, size, 1f), "easeType", "linear", "time", iTweenScaleFactor));
-
         Manager.current.CalculateUnits();
 
         isMoving = false;
@@ -317,8 +266,6 @@ public class StrikeForce : MonoBehaviour
         gameObject.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
 
         lastStrikeForce.GetComponent<StrikeForce>().CalculateSize();
-
-        //yield return new WaitForSeconds(1f);
 
         CalculateSize();
     }
@@ -356,9 +303,6 @@ public class StrikeForce : MonoBehaviour
 
     public IEnumerator AttackStrikeForce(GameObject attacker, GameObject defender)
     {
-        //Debug.Log("Attacker: " + attacker);
-        //Debug.Log("Defender: " + defender);
-
         isMoving = true;
 
         Vector3 originalPosition = attacker.transform.position;
@@ -374,23 +318,16 @@ public class StrikeForce : MonoBehaviour
         if (defender.GetComponent<StrikeForce>().units.Count > 0)
             for (int i = 0; (i < attacker.GetComponent<StrikeForce>().units.Count) || (i < defender.GetComponent<StrikeForce>().units.Count); i++)
             {
-                //Debug.Log("Attacking");
-
                 //two units attack eachother until one dies
-                //if ((0 < lastStrikeForce.GetComponent<StrikeForce>().units.Count) && (0 < units.Count))
                 if (attacker.GetComponent<StrikeForce>().units[a] != null && defender.GetComponent<StrikeForce>().units[b] != null)
                     while (attacker.GetComponent<StrikeForce>().units[a].GetComponent<Unit>().hitPoints > 0 && defender.GetComponent<StrikeForce>().units[b].GetComponent<Unit>().hitPoints > 0)
                     {
-                        //Debug.Log(attacker.GetComponent<StrikeForce>().units[a] + "[ " + attacker.GetComponent<StrikeForce>().units[a].GetComponent<Unit>().hitPoints + "}: greift " + defender.GetComponent<StrikeForce>().units[b] + "[" + defender.GetComponent<StrikeForce>().units[b].GetComponent<Unit>().hitPoints + "] an.");
-
                         //################################################################################################################################Tank=Stein,Heli=Papier,Sol=Schere
                         float damageAtt = CalculateDamage(attacker.GetComponent<StrikeForce>().units[a], defender.GetComponent<StrikeForce>().units[b]);
                         float damageDef = CalculateDamage(defender.GetComponent<StrikeForce>().units[b], attacker.GetComponent<StrikeForce>().units[a]);
 
                         attacker.GetComponent<StrikeForce>().units[a].GetComponent<Unit>().hitPoints -= damageDef;
                         defender.GetComponent<StrikeForce>().units[b].GetComponent<Unit>().hitPoints -= damageAtt;
-
-                        //Debug.Log("Attacking " + attacker.GetComponent<StrikeForce>().units[a] + "["+attacker.GetComponent<StrikeForce>().units[a].GetComponent<Unit>().hitPoints + "]" + " deals " + damageAtt + " Damage to" + );
 
                         if (attacker.GetComponent<StrikeForce>().units[a].GetComponent<Unit>().hitPoints <= 0 && a < attacker.GetComponent<StrikeForce>().units.Count - 1)
                             a++;
@@ -414,7 +351,6 @@ public class StrikeForce : MonoBehaviour
         if (defender.GetComponent<StrikeForce>().units.Count > 0)
             for (int i = 0; i < defender.GetComponent<StrikeForce>().units.Count; i++)
             {
-                //               Debug.Log(i);
                 if (defender.GetComponent<StrikeForce>().units[i] != null)
                     if (defender.GetComponent<StrikeForce>().units[i].GetComponent<Unit>().hitPoints <= 0)
                     {
@@ -424,25 +360,17 @@ public class StrikeForce : MonoBehaviour
                         Destroy(temp);
                     }
             }
-        /*
-        //Player/Attacker loses
-        if (attacker.GetComponent<StrikeForce>().units.Count == 0)
-        {
-            Debug.Log("Attacker lost");
-        }
-        */
+
         //Player/Attacker wins and the strikeforce gets calculated
         if (defender.GetComponent<StrikeForce>().units.Count == 0)
         {
             if (attacker.GetComponent<StrikeForce>().units.Count > 0)
             {
-                //Debug.Log("Attacker wins");
                 for (int i = 0; i < attacker.GetComponent<StrikeForce>().units.Count; i++)
                 {
                     defender.GetComponent<StrikeForce>().units.Add(attacker.GetComponent<StrikeForce>().units[i]);
                 }
                 attacker.GetComponent<StrikeForce>().units.Clear();
-
 
                 Debug.Log(defender + " has lost");
                 defender.GetComponent<StrikeForce>().faction = attacker.GetComponent<StrikeForce>().faction;
@@ -451,8 +379,8 @@ public class StrikeForce : MonoBehaviour
 
                 yield return new WaitForSeconds(1f);
 
-				if (attacker.GetComponent<StrikeForce>().faction == 1)
-					sounds[3].Play();
+                if (attacker.GetComponent<StrikeForce>().faction == 1)
+                    sounds[3].Play();
 
                 defender.GetComponent<StrikeForce>().GetComponent<SpriteRenderer>().sprite = attacker.GetComponent<SpriteRenderer>().sprite;
 
@@ -477,9 +405,6 @@ public class StrikeForce : MonoBehaviour
         attacker.transform.position = originalPosition;
         attacker.transform.localScale = new Vector3(0f, 0f, 0f);
 
-        //float size = TweenSize();
-        //iTween.ScaleTo(attacker, iTween.Hash("scale", new Vector3(size, size, 1f), "easeType", "linear", "time", iTweenScaleFactor));
-
         isMoving = false;
 
         if (faction == 1)
@@ -487,132 +412,8 @@ public class StrikeForce : MonoBehaviour
 
         Manager.current.CalculateUnits();
         Manager.current.CheckForWinner();
-        
-        //yield return new WaitForSeconds(1f);
 
         defender.GetComponent<StrikeForce>().CalculateSize();
         attacker.GetComponent<StrikeForce>().CalculateSize();
     }
-
-    /*
-     
-    public IEnumerator AttackStrikeForce(GameObject attacker, GameObject defender)
-    {
-        isMoving = true;
-
-        Vector3 originalPosition = lastStrikeForce.transform.position;
-
-        iTween.MoveTo(lastStrikeForce, iTween.Hash("position", gameObject.transform.position, "easeType", "linear", "looptype", "none", "time", .95f));
-
-        int a = 0, b = 0;
-
-        //Attack strikeForces until one get out of units
-        if(units.Count > 0)
-        for (int i = 0; (i < lastStrikeForce.GetComponent<StrikeForce>().units.Count) || (i < units.Count); i++)
-        {
-            Debug.Log("Attacking");
-
-                //two units attack eachother until one dies
-                //if ((0 < lastStrikeForce.GetComponent<StrikeForce>().units.Count) && (0 < units.Count))
-                if (lastStrikeForce.GetComponent<StrikeForce>().units[0] != null  && units[0] != null)
-                    while (lastStrikeForce.GetComponent<StrikeForce>().units[a].GetComponent<Unit>().hitPoints > 0 && units[b].GetComponent<Unit>().hitPoints > 0)
-                {
-                    //Debug.Log(lastStrikeForce.GetComponent<StrikeForce>().units[a] + "[ " + lastStrikeForce.GetComponent<StrikeForce>().units[a].GetComponent<Unit>().hitPoints + "}: greift " + units[b] + "[" + units[b].GetComponent<Unit>().hitPoints + "] an.");
-
-                    float damage = units[b].GetComponent<Unit>().dmg;
-
-                    //################################################################################################################################Tank=Stein,Heli=Papier,Sol=Schere
-                    if (lastStrikeForce.GetComponent<StrikeForce>().units[a].GetComponent<Unit>().dmgType == "TankCannon")
-                    {
-                        if (units[b].GetComponent<Unit>().armorType == "HelicopterArmor")
-                            damage /= 2;
-                        if (units[b].GetComponent<Unit>().armorType == "SoldierArmor")
-                            damage *= 2;
-                    }
-                    if (lastStrikeForce.GetComponent<StrikeForce>().units[a].GetComponent<Unit>().dmgType == "HelicopterCannon")
-                    {
-                        if (units[b].GetComponent<Unit>().armorType == "TankArmor")
-                            damage *= 2;
-                        if (units[b].GetComponent<Unit>().armorType == "SoldierArmor")
-                            damage /= 2;
-                    }
-                    if (lastStrikeForce.GetComponent<StrikeForce>().units[a].GetComponent<Unit>().dmgType == "SoldierCannon")
-                    {
-                        if (units[b].GetComponent<Unit>().armorType == "HelicopterArmor")
-                            damage *= 2;
-                        if (units[b].GetComponent<Unit>().armorType == "TankArmor")
-                            damage /= 2;
-                    }
-
-                    lastStrikeForce.GetComponent<StrikeForce>().units[a].GetComponent<Unit>().hitPoints -= damage;
-                    units[b].GetComponent<Unit>().hitPoints -= lastStrikeForce.GetComponent<StrikeForce>().units[a].GetComponent<Unit>().dmg;
-
-                    if (lastStrikeForce.GetComponent<StrikeForce>().units[a].GetComponent<Unit>().hitPoints <= 0 && a < lastStrikeForce.GetComponent<StrikeForce>().units.Count - 1)
-                        a++;
-                    if (units[b].GetComponent<Unit>().hitPoints <= 0 && b < units.Count - 1)
-                        b++;
-                }
-        }
-
-        //clear all dead units from the list
-        for (int i = 0; i < lastStrikeForce.GetComponent<StrikeForce>().units.Count; i++)
-        {
-            if (lastStrikeForce.GetComponent<StrikeForce>().units[i].GetComponent<Unit>().hitPoints <= 0)
-            {
-                GameObject temp = units[i];
-                lastStrikeForce.GetComponent<StrikeForce>().units.RemoveAt(i);
-                i--;
-                Destroy(temp);
-            }
-        }
-        for (int i = 0; i < units.Count; i++)
-        {
-            if (units[i].GetComponent<Unit>().hitPoints <= 0)
-            {
-                GameObject temp = units[i];
-                units.RemoveAt(i);
-                i--;
-                Destroy(temp);
-            }
-        }
-
-        yield return new WaitForSeconds(1f);
-
-        //Player/Attacker loses
-        if (lastStrikeForce.GetComponent<StrikeForce>().units.Count == 0)
-            Debug.Log("Attacker lost");
-
-        //Player/Attacker wins and the strikeforce gets calculated
-        if (units.Count == 0)
-        {
-            if (lastStrikeForce.GetComponent<StrikeForce>().units.Count > 0)
-            {
-                Debug.Log("Attacker wins");
-                for (int i = 0; i < lastStrikeForce.GetComponent<StrikeForce>().units.Count; i++)
-                {
-                    units.Add(lastStrikeForce.GetComponent<StrikeForce>().units[i]);
-                }
-                lastStrikeForce.GetComponent<StrikeForce>().units.Clear();
-
-                faction = lastStrikeForce.GetComponent<StrikeForce>().faction;
-                GetComponent<SpriteRenderer>().sprite = lastStrikeForce.GetComponent<SpriteRenderer>().sprite;
-
-                currentLocation.GetComponent<Region>().owner = lastStrikeForce.GetComponent<StrikeForce>().faction;
-            }
-        }
-
-
-        lastStrikeForce.transform.position = originalPosition;
-        lastStrikeForce.transform.localScale = new Vector3(0f, 0f, 0f);
-
-        iTween.ScaleTo(lastStrikeForce, iTween.Hash("scale", new Vector3(1f, 1f, 1f), "easeType", "linear", "time", 1f));
-
-        isMoving = false;
-        askForDestination();
-
-        Manager.current.CalculateUnits();
-
-        yield return new WaitForSeconds(1f);
-    }
-     */
 }
