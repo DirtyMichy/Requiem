@@ -359,7 +359,7 @@ public class Manager : MonoBehaviour
     {
         sounds[4].Play();
 
-        SceneManager.LoadScene("Requiem");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void ShowESCMenu()
