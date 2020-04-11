@@ -9,6 +9,11 @@ public class Region : MonoBehaviour
     public GameObject currentStrikeForce; //every sector has a strikeforce
     public GameObject marker;
 
+    private void Start()
+    {
+        transform.parent = null;
+    }
+
     public void SpawnStrikeForce()
     {
         //Spawn terrorists

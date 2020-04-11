@@ -52,15 +52,14 @@ public class StrikeForce : MonoBehaviour
 
         GameObject temp = (GameObject)Instantiate(unitTypes[Random.Range(0, unitTypes.Length)]);
         units.Add(temp);
-        if (faction != 666)
-            StartCoroutine("AIControls");
 
-        Colorize();
+        if (faction != 0)
+            StartCoroutine("AIControls");
     }
 
     public IEnumerator AIControls()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2f);
         while (true)
         {
             //Faction 0 controls the map and gets a lot of money, for balancing reasons units are 10 times more expensive
@@ -104,7 +103,7 @@ public class StrikeForce : MonoBehaviour
             Manager.current.CalculateUnits();
         }
 
-        if (!isMoving && faction != 666 && currentLocation != null)
+        if (!isMoving && faction != 0 && currentLocation != null)
         {
             Vector3 pos = currentLocation.transform.position;
             pos.z = -1f;
@@ -196,7 +195,6 @@ public class StrikeForce : MonoBehaviour
                 Manager.current.CalculateUnits();
 
             Manager.current.CalculateButtons();
-
 
             GameObject[] removeMarker = GameObject.FindGameObjectsWithTag("Marker");
 

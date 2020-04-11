@@ -75,8 +75,6 @@ public class Manager : MonoBehaviour
         {
             ShowESCMenu();
         }
-
-
     }
 
     public void CheckForWinner()
