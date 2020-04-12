@@ -117,7 +117,7 @@ public class Manager : MonoBehaviour
     {
         sounds[0].Stop();
         yield return new WaitForSeconds(20f);
-        SceneManager.LoadScene("Requiem");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void CalculateUnits()
