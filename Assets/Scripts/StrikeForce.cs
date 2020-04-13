@@ -159,8 +159,6 @@ public class StrikeForce : MonoBehaviour
 
         isMoving = false;
 
-        //yield return new WaitForSeconds(1f);
-
         possibleDestiantions[destination].GetComponent<Region>().currentStrikeForce.GetComponent<StrikeForce>().CalculateSize();
         CalculateSize();
     }
@@ -375,8 +373,6 @@ public class StrikeForce : MonoBehaviour
 
                 defender.GetComponent<StrikeForce>().currentLocation.GetComponent<Region>().owner = attacker.GetComponent<StrikeForce>().faction;
 
-                yield return new WaitForSeconds(1f);
-
                 if (attacker.GetComponent<StrikeForce>().faction == 1)
                     sounds[3].Play();
 
@@ -394,16 +390,10 @@ public class StrikeForce : MonoBehaviour
         }
         else
         {
-            yield return new WaitForSeconds(1f);
 
             if (attacker.GetComponent<StrikeForce>().faction == 1)
                 sounds[4].Play();
         }
-
-        attacker.transform.position = originalPosition;
-        attacker.transform.localScale = new Vector3(0f, 0f, 0f);
-
-        isMoving = false;
 
         if (faction == 1)
             askForDestination();
@@ -411,7 +401,14 @@ public class StrikeForce : MonoBehaviour
         Manager.current.CalculateUnits();
         Manager.current.CheckForWinner();
 
+        yield return new WaitForSeconds(1f);
+
         defender.GetComponent<StrikeForce>().CalculateSize();
         attacker.GetComponent<StrikeForce>().CalculateSize();
+
+        attacker.transform.position = originalPosition;
+        attacker.transform.localScale = new Vector3(0f, 0f, 0f);
+
+        isMoving = false;
     }
 }

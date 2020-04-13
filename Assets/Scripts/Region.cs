@@ -21,6 +21,7 @@ public class Region : MonoBehaviour
         spawnPos.z = -1;
         currentStrikeForce = (GameObject)Instantiate(currentStrikeForce, spawnPos, currentStrikeForce.transform.rotation);
         currentStrikeForce.SendMessage("setCurrentLocation", (gameObject));
+        currentStrikeForce.GetComponent<SpriteRenderer>().color = Manager.current.factionColors[owner];
     }
 
     void OnTriggerEnter2D(Collider2D collider)
