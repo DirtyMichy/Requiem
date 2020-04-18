@@ -19,6 +19,9 @@ public class StrikeForce : MonoBehaviour
     void setCurrentLocation(GameObject location)
     {
         currentLocation = location;
+        faction = location.GetComponent<Region>().owner;
+        GetComponent<SpriteRenderer>().sprite = Manager.current.faction[faction].factionsLogo;
+        Colorize();
     }
 
     public void CalculateSize()
@@ -36,7 +39,7 @@ public class StrikeForce : MonoBehaviour
 
     public void Colorize()
     {
-        gameObject.GetComponent<SpriteRenderer>().color = Manager.current.factionColors[faction];
+        gameObject.GetComponent<SpriteRenderer>().color = Manager.current.faction[faction].factionColor;
     }
 
     void Awake()
@@ -63,9 +66,9 @@ public class StrikeForce : MonoBehaviour
         while (true)
         {
             //Faction 0 controls the map and gets a lot of money, for balancing reasons units are 10 times more expensive
-            if (faction == 0 && Manager.current.factionRessources[faction] >= 100)
+            if (faction == 0 && Manager.current.faction[faction].resources >= 100)
             {
-                Manager.current.factionRessources[faction] -= 100;
+                Manager.current.faction[faction].resources -= 100;
 
                 GameObject temp = (GameObject)Instantiate(unitTypes[Random.Range(0, 3)]);
 
@@ -74,11 +77,10 @@ public class StrikeForce : MonoBehaviour
 
             if (faction >= 2)
             {
-                while (Manager.current.factionRessources[faction] >= 10)
+                while (Manager.current.faction[faction].resources >= 10)
                 {
-                    Manager.current.factionRessources[faction] -= 10;
+                    Manager.current.faction[faction].resources -= 10;
 
-                    //GameObject temp = (GameObject)Instantiate(unitTypes[Random.Range(0, unitTypes.Length)]);
                     GameObject temp = (GameObject)Instantiate(unitAITypes[faction - 2, Random.Range(0, 2)]);
 
                     units.Add(temp);
@@ -175,7 +177,6 @@ public class StrikeForce : MonoBehaviour
             lastStrikeForce = Manager.current.GetLastSelectedStrikeForce();
 
             lastStrikeForce.GetComponent<StrikeForce>().Colorize();
-            //lastStrikeForce.gameObject.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
             Colorize();
             gameObject.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
 
@@ -204,9 +205,11 @@ public class StrikeForce : MonoBehaviour
             //Faction 1 means its a player controlled target
             if (faction == 1)
             {
-                currentLocation.BroadcastMessage("ShowNeighbours");
-
-                possibleDestiantions = currentLocation.GetComponent<Region>().getNeighBours();
+                if(currentLocation != null)
+                {
+                    currentLocation.BroadcastMessage("ShowNeighbours");
+                    possibleDestiantions = currentLocation.GetComponent<Region>().getNeighBours();
+                }
 
                 //If last StrikeForce is a neighbour and not empty, then move and merge it to the current force
                 if (isNeighbour && lastStrikeForce.GetComponent<StrikeForce>().units.Count > 0 && lastStrikeForce.GetComponent<StrikeForce>().faction == 1)
@@ -358,7 +361,7 @@ public class StrikeForce : MonoBehaviour
             }
 
         //Player/Attacker wins and the strikeforce gets calculated
-        if (defender.GetComponent<StrikeForce>().units.Count == 0)
+        if (defender.GetComponent<StrikeForce>().units.Count == 0 && currentLocation != null)
         {
             if (attacker.GetComponent<StrikeForce>().units.Count > 0)
             {

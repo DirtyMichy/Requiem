@@ -9,7 +9,6 @@ public class Manager : MonoBehaviour
     public static Manager current;
     public GameObject currentSelectedStrikeForce;
     public GameObject lastSelectedStrikeForce;
-    public GameObject[] startingStrikeForces;
     public GameObject defaultStrikeForce;
 
     public Button[] buttons;
@@ -31,18 +30,21 @@ public class Manager : MonoBehaviour
 
     public GameObject mainCam;
 
-    private int PLAYERFACTION = 1;
-    private int FACTIONCOUNT = 5;
-
     private GameObject[] sectors;
 
     private bool end = false;
 
-    public int[] factionRessources;
-
     public AudioSource[] sounds;
 
-    public Color[] factionColors;
+    public Factions[] faction;
+
+    [System.Serializable]
+    public struct Factions
+    {
+        public Color factionColor;
+        public Sprite factionsLogo;
+        public int resources;
+    }
 
     void Update()
     {
@@ -51,24 +53,24 @@ public class Manager : MonoBehaviour
             DeselectStrikeForce();
         }
 
-        if (Input.GetKey(KeyCode.Alpha2) && factionRessources[PLAYERFACTION] >= 10)
+        if (Input.GetKey(KeyCode.Alpha2) && faction[0].resources >= 10)
         {
             AddHeli();
         }
 
-        if (Input.GetKey(KeyCode.Alpha3) && factionRessources[PLAYERFACTION] >= 10)
+        if (Input.GetKey(KeyCode.Alpha3) && faction[0].resources >= 10)
         {
             AddTank();
         }
 
-        if (Input.GetKey(KeyCode.Alpha1) && factionRessources[PLAYERFACTION] >= 10)
+        if (Input.GetKey(KeyCode.Alpha1) && faction[0].resources >= 10)
         {
             AddSoldier();
         }
 
         if (Input.GetKeyDown(KeyCode.F10))
         {
-            factionRessources[PLAYERFACTION] += 1337;
+            faction[0].resources += 1337;
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -137,7 +139,6 @@ public class Manager : MonoBehaviour
                     buttons[i].GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
                 }
             }
-
         }
         else
         {
@@ -154,7 +155,7 @@ public class Manager : MonoBehaviour
             }
         }
 
-        playerRessourcesText.GetComponent<Text>().text = factionRessources[PLAYERFACTION] + " $";
+        playerRessourcesText.GetComponent<Text>().text = faction[0].resources + " $";
     }
 
     public void AddTank()
@@ -163,7 +164,7 @@ public class Manager : MonoBehaviour
         currentSelectedStrikeForce.GetComponent<StrikeForce>().units.Add(temp);
         currentSelectedStrikeForce.GetComponent<StrikeForce>().CalculateSize();
 
-        factionRessources[PLAYERFACTION] -= 10;
+        faction[0].resources -= 10;
 
         CalculateUnits();
         CalculateButtons();
@@ -176,7 +177,7 @@ public class Manager : MonoBehaviour
         currentSelectedStrikeForce.GetComponent<StrikeForce>().units.Add(temp);
         currentSelectedStrikeForce.GetComponent<StrikeForce>().CalculateSize();
 
-        factionRessources[PLAYERFACTION] -= 10;
+        faction[0].resources -= 10;
 
         CalculateUnits();
         CalculateButtons();
@@ -189,7 +190,7 @@ public class Manager : MonoBehaviour
         currentSelectedStrikeForce.GetComponent<StrikeForce>().units.Add(temp);
         currentSelectedStrikeForce.GetComponent<StrikeForce>().CalculateSize();
 
-        factionRessources[PLAYERFACTION] -= 10;
+        faction[0].resources -= 10;
 
         CalculateUnits();
         CalculateButtons();
@@ -200,7 +201,7 @@ public class Manager : MonoBehaviour
     {
         for (int i = 0; i < buttons.Length; i++)
         {
-            if (factionRessources[PLAYERFACTION] >= 10 && currentSelectedStrikeForce.GetComponent<StrikeForce>().faction == 1)
+            if (faction[0].resources >= 10 && currentSelectedStrikeForce.GetComponent<StrikeForce>().faction == 1)
                 buttons[i].interactable = true;
             else
                 buttons[i].interactable = false;
@@ -215,10 +216,10 @@ public class Manager : MonoBehaviour
 
             for (int i = 0; i < sectors.Length; i++)
             {
-                if (sectors[i].GetComponent<Region>().owner != PLAYERFACTION)
-                    factionRessources[sectors[i].GetComponent<Region>().owner] += 2; //AI is cheating :o
+                if (sectors[i].GetComponent<Region>().owner != 0)
+                    faction[sectors[i].GetComponent<Region>().owner].resources += 2; //AI is cheating :o
                 else
-                    factionRessources[PLAYERFACTION]++;
+                    faction[0].resources++;
             }
 
             CalculateButtons();
@@ -245,13 +246,6 @@ public class Manager : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        factionRessources = new int[FACTIONCOUNT];
-
-        for (int i = 0; i < factionRessources.Length; i++)
-        {
-            factionRessources[i] = 10;
-        }
-
         sounds = GetComponents<AudioSource>();
 
         //Ensure that there is only one manager
@@ -271,45 +265,33 @@ public class Manager : MonoBehaviour
             sectors[rng] = tempSector;
         }
 
-        //spawn all factions except neutral/blue
-        for (int i = 0; i < startingStrikeForces.Length; i++)
-        {
-            sectors[i].GetComponent<Region>().currentStrikeForce = startingStrikeForces[i];
-            sectors[i].GetComponent<Region>().owner = sectors[i].GetComponent<Region>().currentStrikeForce.GetComponent<StrikeForce>().faction;
-        }
+        int lastPlayerLocation = 666;
 
-        for (int i = 0; i < startingStrikeForces.Length; i++)
+        for (int i = 0; i < sectors.Length; i++)
         {
-            startingStrikeForces[i].GetComponent<StrikeForce>().currentLocation = sectors[i];
-            if (startingStrikeForces[i].GetComponent<StrikeForce>().faction == 1)
+            sectors[i].GetComponent<Region>().owner = i % faction.Length;
+
+            if (i % faction.Length == 0)
             {
-                Vector3 pos = startingStrikeForces[i].GetComponent<StrikeForce>().currentLocation.transform.position;
-                pos.z = -10f;
-                mainCam.transform.position = pos;
+                lastSelectedStrikeForce = sectors[i].GetComponent<Region>().currentStrikeForce;
+                currentSelectedStrikeForce = sectors[i].GetComponent<Region>().currentStrikeForce;
+                defaultStrikeForce = sectors[i].GetComponent<Region>().currentStrikeForce;
+                lastPlayerLocation = i;
             }
         }
+
+        sectors[lastPlayerLocation].GetComponent<Region>().ShowNeighbours();
 
         for (int i = 0; i < sectors.Length; i++)
         {
             sectors[i].name = "Sektor: " + i.ToString();
-
-            if (sectors[i].GetComponent<Region>().owner == 0)
-                sectors[i].GetComponent<Region>().SpawnStrikeForce();
-
+            sectors[i].GetComponent<Region>().SpawnStrikeForce();
             sectors[i].GetComponent<Region>().Colorize();
         }
 
         StartCoroutine("Ressources");
 
         currentSelectedStrikeForce.gameObject.GetComponent<StrikeForce>().askForDestination();
-
-        StartCoroutine("LateStart");
-    }
-
-    IEnumerator LateStart()
-    {
-        yield return new WaitForSeconds(.1f);
-        currentSelectedStrikeForce.gameObject.GetComponent<StrikeForce>().currentLocation.BroadcastMessage("ShowNeighbours");
     }
 
     public void DeselectStrikeForce()
@@ -327,7 +309,6 @@ public class Manager : MonoBehaviour
             Destroy(removeMarker[i]);
         }
 
-        //currentSelectedStrikeForce.gameObject.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
         currentSelectedStrikeForce.gameObject.GetComponent<StrikeForce>().Colorize();
         currentSelectedStrikeForce = defaultStrikeForce;
         CalculateButtons();

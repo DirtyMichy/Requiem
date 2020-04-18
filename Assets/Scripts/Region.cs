@@ -16,12 +16,11 @@ public class Region : MonoBehaviour
 
     public void SpawnStrikeForce()
     {
-        //Spawn terrorists
         Vector3 spawnPos = transform.position;
         spawnPos.z = -1;
         currentStrikeForce = (GameObject)Instantiate(currentStrikeForce, spawnPos, currentStrikeForce.transform.rotation);
+        currentStrikeForce.name = "SF" + Random.Range(1000,10000);
         currentStrikeForce.SendMessage("setCurrentLocation", (gameObject));
-        currentStrikeForce.GetComponent<SpriteRenderer>().color = Manager.current.factionColors[owner];
     }
 
     void OnTriggerEnter2D(Collider2D collider)
@@ -45,7 +44,6 @@ public class Region : MonoBehaviour
 
     public void Colorize()
     {
-        //First implementation of colors for testing
-        gameObject.GetComponent<SpriteRenderer>().color = Manager.current.factionColors[owner];
+        gameObject.GetComponent<SpriteRenderer>().color = Manager.current.faction[owner].factionColor;
     }
 }
